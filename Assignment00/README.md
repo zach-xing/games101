@@ -32,3 +32,40 @@ message($ENV{ENV_CXX}) # 报错
 - list 列表
 
 直接看代码 list.cmake
+
+- if 条件控制
+
+```cmake
+set(VARBOOL TRUE)
+
+if (VARBOOL)
+    message("111")
+else()
+    message("222")
+endif()
+```
+
+- LOOP 循环
+
+for 循环
+```cmake
+foreach(<loop_var> RANGE <max>)
+    <commands>
+endforeach()
+
+foreach(<loop_var> RANGE <min><max>[<step>])
+    <commands>
+endforeach()
+
+foreach(<loop_val> IN [LISTS <lists>][ITEMS <items>])
+    <commands>
+endforeach()
+```
+
+while循环
+
+```cmake
+while(<condition>)
+    <commands>
+endwhile()
+```
