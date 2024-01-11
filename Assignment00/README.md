@@ -69,3 +69,7 @@ while(<condition>)
     <commands>
 endwhile()
 ```
+
+- func 函数
+
+见 func.cmake 代码
