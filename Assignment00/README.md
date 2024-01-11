@@ -73,3 +73,7 @@ endwhile()
 - func 函数
 
 见 func.cmake 代码
+
+## 构建方式
+
+project 01 里面 cmake 运行可以用: `cmake -B build` 构建并生成配置文件，再用`cmake --build build`来构建 build 目录中的项目，去生成可运行文件
