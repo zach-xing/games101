@@ -7,6 +7,8 @@
 
 constexpr double MY_PI = 3.1415926;
 
+inline double degree(double angle) { return angle * MY_PI / 180.0; }
+
 Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos) {
     Eigen::Matrix4f view = Eigen::Matrix4f::Identity();
     Eigen::Matrix4f translate;
@@ -21,9 +23,14 @@ Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos) {
 Eigen::Matrix4f get_model_matrix(float rotation_angle) {
     Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
 
-    // TODO: Implement this function
     // Create the model matrix for rotating the triangle around the Z axis.
     // Then return it.
+    double degreeVal = degree(rotation_angle);
+    // 好像就转了一下？
+    model << cos(degreeVal), -sin(degreeVal), 0, 0,
+            sin(degreeVal), cos(degreeVal), 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1;
 
     return model;
 }
@@ -39,6 +46,15 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov,
     // TODO: Implement this function
     // Create the projection matrix for the given parameters.
     // Then return it.
+    float n = zNear;
+    float f = zFar;
+    float t = -abs(zNear) * tan(degree(eye_fov)/2.0);
+    float r = t * aspect_ratio;
+
+    projection << n/r, 0, 0, 0,
+                0, n/t, 0, 0,
+                0, 0, (n+f)/(n-f), -2*n*f/(n-f),
+                0, 0, 1, 0;
 
     return projection;
 }
