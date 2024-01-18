@@ -132,12 +132,17 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer,
 }
 
 // Screen space rasterization
+// 三角形栅格算法
 void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     auto v = t.toVector4();
 
     // TODO : Find out the bounding box of current triangle.
     // iterate through the pixel and find if the current pixel is inside the
     // triangle
+    float x_min = std::min(std::min(v[0][0], v[1][0]), v[2][0]);
+    float x_max = std::max(std::max(v[0][0], v[1][0]), v[2][0]);
+    float y_min = std::min(std::min(v[0][1], v[1][1]), v[2][1]);
+    float y_max = std::max(std::max(v[0][1], v[1][1]), v[2][1]);
 
     // If so, use the following code to get the interpolated z value.
     // auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
@@ -148,6 +153,43 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
 
     // TODO : set the current pixel (use the set_pixel function) to the color of
     // the triangle (use getColor function) if it should be painted.
+
+    for (int x = (int)x_min; x <= (int)x_max; x++) {
+        for (int y = (int)y_min; y <= (int)y_max; y++) {
+            // you have to record the min-depth of the 4 sampled points(in one pixel)
+            float min_depth = FLT_MAX;
+            // the number of the 4 sampled points that are inside triangle
+            int count = 0;
+            std::vector<std::vector<float>> sampled_points{
+                {0.25, 0.25}, {0.25, 0.75}, {0.75, 0.25}, {0.75, 0.75}};
+
+            for (int i = 0; i < 4; i++) {
+                // 看是不是在三角形内
+                if (insideTriangle(float(x) + sampled_points[i][0],
+                                   float(y) + sampled_points[i][1], t.v)) {
+                    auto [alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
+                    float w_reciprocal =
+                        1.0 /
+                        (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+                    float z_interpolated = alpha * v[0].z() / v[0].w() +
+                                           beta * v[1].z() / v[1].w() +
+                                           gamma * v[2].z() / v[2].w();
+                    z_interpolated *= w_reciprocal;
+                    min_depth = std::min(min_depth, z_interpolated);
+                    count += 1;
+                }
+            }
+            if (count > 0 && depth_buf[get_index(x, y)] > min_depth) {
+                // update
+                depth_buf[get_index(x, y)] = min_depth;
+                // note: the color should be changed too
+                set_pixel(Vector3f(x, y, min_depth),
+                          t.getColor() * count / 4.0 +
+                              frame_buf[get_index(x, y)] * (4 - count) /
+                                  4.0);  // frame_buf contains the current color
+            }
+        }
+    }
 }
 
 void rst::rasterizer::set_model(const Eigen::Matrix4f& m) { model = m; }
