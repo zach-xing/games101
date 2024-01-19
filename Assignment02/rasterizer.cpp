@@ -156,9 +156,9 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
 
     for (int x = (int)x_min; x <= (int)x_max; x++) {
         for (int y = (int)y_min; y <= (int)y_max; y++) {
-            // you have to record the min-depth of the 4 sampled points(in one pixel)
+
             float min_depth = FLT_MAX;
-            // the number of the 4 sampled points that are inside triangle
+
             int count = 0;
             std::vector<std::vector<float>> sampled_points{
                 {0.25, 0.25}, {0.25, 0.75}, {0.75, 0.25}, {0.75, 0.75}};
